@@ -1,0 +1,120 @@
+.container {
+    max-width: 100%;
+    padding: 15px;
+}
+
+.table th {
+    background-color: #f8f9fa;
+}
+
+.form-control, .form-select {
+    margin-bottom: 10px;
+    font-size: 16px;
+    height: 45px;
+}
+
+.btn {
+    height: 45px;
+    font-size: 16px;
+}
+
+.table-responsive {
+    margin: 0 -15px;
+    padding: 0 15px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Adicione no final do arquivo */
+/* Seus estilos existentes... */
+
+/* Estilos específicos para mobile */
+@media (max-width: 768px) {
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn, input, select {
+        touch-action: manipulation;
+    }
+
+    .btn {
+        padding: 12px 20px;
+        margin: 5px 0;
+    }
+
+    .form-control {
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .table-responsive {
+        margin: 0;
+        padding: 10px 0;
+    }
+
+    .table td, .table th {
+        padding: 8px 4px;
+    }
+
+    .remove-row {
+        padding: 8px 12px;
+    }
+}
+
+.table {
+    font-size: 14px;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+}
+
+h2 {
+    font-size: 24px;
+}
+
+/* Adicione estes estilos */
+.btn {
+    cursor: pointer !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+#addProduct, #generatePDF {
+    width: 100%;
+    margin: 10px 0;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .btn {
+        min-height: 44px; /* Mínimo recomendado para touch targets */
+        touch-action: manipulation;
+    }
+    
+    #addProduct, #generatePDF {
+        padding: 15px;
+    }
+}
