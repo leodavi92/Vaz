@@ -4,7 +4,7 @@ window.jsPDF = window.jspdf.jsPDF;
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
     if (!sessionStorage.getItem('loggedIn')) {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html'; // Updated this line
         return;
     }
 
