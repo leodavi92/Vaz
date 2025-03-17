@@ -1,6 +1,13 @@
 window.jsPDF = window.jspdf.jsPDF;
 
+// Add at the beginning of your script.js file
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    if (!sessionStorage.getItem('loggedIn')) {
+        window.location.href = 'login.html';
+        return;
+    }
+
     // Add product button
     const addProductBtn = document.getElementById('addProduct');
     addProductBtn.addEventListener('click', function(e) {
