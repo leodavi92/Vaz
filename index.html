@@ -173,20 +173,23 @@
             </div>
 
             <div class="table-container">
-                <table class="table table-bordered">
-                    <thead class="table-primary">
-                        <tr>
-                            <th>Código</th>
-                            <th>Produto</th>
-                            <th>Preço Unitário</th>
-                            <th>Quantidade</th>
-                            <th>Total</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productTableBody">
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Produto</th>
+                                <th>Preço Unitário</th>
+                                <th>Quantidade</th>
+                                <th>Total</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody">
+                            <!-- Linhas da tabela serão adicionadas aqui dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
                 <button type="button" class="btn btn-success" id="addProduct">Adicionar Produto</button>
             </div>
 

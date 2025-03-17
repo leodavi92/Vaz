@@ -237,3 +237,33 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.save('recibo.pdf');
     });
 });
+
+
+// Function to add event listeners to a row
+function addRowEventListeners(row) {
+    const priceInput = row.querySelector('[name="price"]');
+    const quantityInput = row.querySelector('[name="quantity"]');
+    const removeButton = row.querySelector('.remove-row');
+    const codeInput = row.querySelector('[name="code"]');
+    const descriptionInput = row.querySelector('[name="description"]');
+
+    // Auto-fill product information based on code
+    codeInput.addEventListener('input', function() {
+        // ... existing code ...
+    });
+
+    // Calculate row total when price or quantity changes
+    const calculateRowTotal = () => {
+        // ... existing code ...
+    };
+
+    priceInput.addEventListener('input', calculateRowTotal);
+    quantityInput.addEventListener('input', calculateRowTotal);
+    
+    // Corrigindo o evento de remoção
+    removeButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        row.remove();
+        calculateGrandTotal();
+    });
+}
