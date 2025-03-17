@@ -41,18 +41,33 @@ document.addEventListener('DOMContentLoaded', function() {
             format: 'a4'
         });
         const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
 
-        // Company header
-        doc.setFontSize(20);
-        doc.text('VAZ PRÉ-MOLDADOS', pageWidth / 2, 20, { align: 'center' });
-        doc.setFontSize(12);
-        doc.text(`Data: ${document.getElementById('currentDate').textContent}`, 20, 30);
-        doc.text('CNPJ: 29.672.312/0001-23', 20, 37);
+        // Add border to page
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+        // Company header with improved layout
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('VAZ PRÉ-MOLDADOS', pageWidth / 2, 25, { align: 'center' });
+        
+        // Add company info in a box
+        doc.setDrawColor(240, 240, 240);
+        doc.setFillColor(250, 250, 250);
+        doc.rect(20, 35, pageWidth - 40, 20, 'F');
+        
+        doc.setFontSize(10);
+        doc.text('Telefone: (65) 99235-3982', 25, 43);
+        doc.text('E-mail: premoldadosvaz@gmail.com', 25, 48);
+        
         const documentType = document.querySelector('input[name="documentType"]:checked').value;
-        doc.text(documentType.toUpperCase(), pageWidth - 20, 30, { align: 'right' });
+        doc.setFontSize(16);
+        doc.text(documentType.toUpperCase(), pageWidth - 25, 45, { align: 'right' });
 
-        // Customer information
-        const startY = 45;
+        // Customer information with adjusted starting position
+        const startY = 70; // Increased from 45
         const lineHeight = 7;
         let currentY = startY;
 
@@ -138,21 +153,24 @@ document.addEventListener('DOMContentLoaded', function() {
             body: tableData,
             theme: 'grid',
             styles: { 
+                fontSize: 10,
+                cellPadding: 6,
+                lineWidth: 0.1
+            },
+            headStyles: {
+                fillColor: [60, 60, 60],
                 fontSize: 11,
-                cellPadding: 6
+                fontStyle: 'bold',
+                halign: 'center'
             },
             alternateRowStyles: {
-                fillColor: [249, 249, 249]
+                fillColor: [252, 252, 252]
             },
-            didDrawPage: function(data) {
-                // Reset margins and position for new pages
-                data.settings.margin.top = 20;
-            },
-            willDrawCell: function(data) {
-                // Ensure text fits within cells
-                if (data.cell.text.length > 50) {
-                    data.cell.text = data.cell.text.substring(0, 47) + '...';
-                }
+            columnStyles: {
+                0: { halign: 'center' },
+                2: { halign: 'right' },
+                3: { halign: 'center' },
+                4: { halign: 'right' }
             }
         });
 
