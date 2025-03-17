@@ -4,7 +4,8 @@ window.jsPDF = window.jspdf.jsPDF;
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
     if (!sessionStorage.getItem('loggedIn')) {
-        window.location.href = 'index.html'; // Updated this line
+        // Alterando o redirecionamento para funcionar com GitHub Pages
+        window.location.href = './index.html';
         return;
     }
 

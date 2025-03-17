@@ -64,10 +64,10 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Updated credentials
             if (username === 'premoldadosvaz@gmail.com' && password === 'vaz2018') {
                 sessionStorage.setItem('loggedIn', 'true');
-                window.location.href = 'index.html';
+                // Alterando o redirecionamento para funcionar com GitHub Pages
+                window.location.href = './recibo.html';
             } else {
                 alert('Usuário ou senha incorretos!');
             }
