@@ -1,120 +1,97 @@
+/* Base styles */
 .container {
     max-width: 100%;
-    padding: 15px;
+    padding: 10px;
 }
 
-.table th {
-    background-color: #f8f9fa;
-}
-
+/* Form controls */
 .form-control, .form-select {
-    margin-bottom: 10px;
+    height: 48px;
     font-size: 16px;
-    height: 45px;
+    padding: 10px;
+    margin-bottom: 15px;
 }
 
+/* Buttons */
 .btn {
-    height: 45px;
+    min-height: 48px;
     font-size: 16px;
+    padding: 12px 20px;
+    width: 100%;
+    margin-bottom: 10px;
+    touch-action: manipulation;
 }
 
+/* Table styles */
 .table-responsive {
-    margin: 0 -15px;
-    padding: 0 15px;
+    margin: 0 -10px;
+    padding: 10px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
 .table td {
+    padding: 8px 4px;
     vertical-align: middle;
 }
 
-input[type="number"] {
-    -moz-appearance: textfield;
+.table input {
+    font-size: 14px;
+    padding: 8px;
 }
 
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-/* Adicione no final do arquivo */
-/* Seus estilos existentes... */
-
-/* Estilos específicos para mobile */
+/* Mobile specific styles */
 @media (max-width: 768px) {
     * {
         -webkit-tap-highlight-color: transparent;
     }
 
-    .btn, input, select {
-        touch-action: manipulation;
+    body {
+        font-size: 14px;
     }
 
-    .btn {
-        padding: 12px 20px;
-        margin: 5px 0;
+    h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
     }
 
-    .form-control {
-        height: 40px;
-        font-size: 16px;
-    }
-
-    .table-responsive {
-        margin: 0;
-        padding: 10px 0;
-    }
-
-    .table td, .table th {
-        padding: 8px 4px;
+    .btn-sm {
+        min-height: 40px;
+        padding: 8px 15px;
     }
 
     .remove-row {
+        width: auto;
         padding: 8px 12px;
     }
-}
 
-.table {
-    font-size: 14px;
-}
-
-.btn-sm {
-    padding: 5px 10px;
-}
-
-h2 {
-    font-size: 24px;
-}
-
-/* Adicione estes estilos */
-.btn {
-    cursor: pointer !important;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-
-#addProduct, #generatePDF {
-    width: 100%;
-    margin: 10px 0;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: bold;
-}
-
-@media (max-width: 768px) {
-    .btn {
-        min-height: 44px; /* Mínimo recomendado para touch targets */
-        touch-action: manipulation;
+    input[type="number"],
+    input[type="tel"] {
+        -webkit-appearance: none;
+        margin: 0;
     }
-    
+
     #addProduct, #generatePDF {
+        position: sticky;
+        bottom: 10px;
+        z-index: 100;
+        margin: 0;
         padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .form-check {
+        margin-bottom: 15px;
+    }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+    }
+
+    .form-check-label {
+        padding-left: 10px;
+        line-height: 20px;
     }
 }

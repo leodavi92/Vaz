@@ -1,89 +1,36 @@
 window.jsPDF = window.jspdf.jsPDF;
 
-// Initialize jsPDF
-if (!window.jspdf) {
-    console.error('jsPDF library not loaded');
-}
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Set current date
-    const today = new Date();
-    document.getElementById('currentDate').textContent = today.toLocaleDateString('pt-BR');
-
-    // Add product row
-    document.getElementById('addProduct').addEventListener('click', function() {
+    // Add product button
+    const addProductBtn = document.getElementById('addProduct');
+    addProductBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         const tbody = document.getElementById('productTableBody');
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><input type="text" class="form-control" name="code" required></td>
+            <td><input type="tel" class="form-control" name="code" required></td>
             <td><input type="text" class="form-control" name="description" required></td>
-            <td><input type="number" class="form-control" name="price" step="0.01" required></td>
-            <td><input type="number" class="form-control" name="quantity" value="1" min="1" required></td>
+            <td><input type="tel" class="form-control" name="price" step="0.01" required></td>
+            <td><input type="tel" class="form-control" name="quantity" value="1" min="1" required></td>
             <td>R$ <span class="row-total">0.00</span></td>
             <td><button type="button" class="btn btn-danger btn-sm remove-row">Remover</button></td>
         `;
         tbody.appendChild(tr);
-
-        // Add event listeners to new row
         addRowEventListeners(tr);
     });
 
-    // Function to add event listeners to a row
-    function addRowEventListeners(row) {
-        const priceInput = row.querySelector('[name="price"]');
-        const quantityInput = row.querySelector('[name="quantity"]');
-        const removeButton = row.querySelector('.remove-row');
-        const codeInput = row.querySelector('[name="code"]');
-        const descriptionInput = row.querySelector('[name="description"]');
-
-        // Auto-fill product information based on code
-        codeInput.addEventListener('input', function() {
-            const code = this.value.trim();
-            if (code === '01') {
-                descriptionInput.value = 'Pilar para caixa de 1000 litros/18x18x3,70cm';
-            } else if (code === '02') {
-                descriptionInput.value = 'Pilar para caixa de 2000 litros/20x20x3,60cm';
-            }
-        });
-
-        // Calculate row total when price or quantity changes
-        const calculateRowTotal = () => {
-            const price = parseFloat(priceInput.value) || 0;
-            const quantity = parseInt(quantityInput.value) || 0;
-            const total = price * quantity;
-            row.querySelector('.row-total').textContent = total.toFixed(2);
-            calculateGrandTotal();
-        };
-
-        priceInput.addEventListener('input', calculateRowTotal);
-        quantityInput.addEventListener('input', calculateRowTotal);
-        removeButton.addEventListener('click', function() {
-            row.remove();
-            calculateGrandTotal();
-        });
-    }
-
-    // Calculate grand total
-    function calculateGrandTotal() {
-        const rowTotals = document.querySelectorAll('.row-total');
-        const grandTotal = Array.from(rowTotals)
-            .reduce((sum, element) => sum + parseFloat(element.textContent), 0);
-        document.getElementById('totalAmount').textContent = grandTotal.toFixed(2);
-    }
-
-    // Show/hide credit installments
-    document.getElementById('paymentMethod').addEventListener('change', function() {
-        const creditOptions = document.getElementById('creditOptions');
-        creditOptions.style.display = this.value === 'Crédito' ? 'block' : 'none';
-    });
-
-    // Generate PDF
-    document.getElementById('generatePDF').addEventListener('click', function() {
+    // Generate PDF button
+    const generatePDFBtn = document.getElementById('generatePDF');
+    generatePDFBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        alert('Gerando PDF, aguarde...');
+        
         const doc = new jsPDF({
             orientation: 'portrait',
             unit: 'mm',
-            format: 'a4',
-            margins: { top: 20, right: 20, bottom: 20, left: 20 }
+            format: 'a4'
         });
         const pageWidth = doc.internal.pageSize.getWidth();
 
