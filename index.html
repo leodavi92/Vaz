@@ -3,253 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Recibo</title>
+    <title>Login - VAZ PRÉ-MOLDADOS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #0d6efd;
-            --secondary-color: #6c757d;
-            --success-color: #198754;
-            --danger-color: #dc3545;
-            --background-color: #f8f9fa;
-        }
-
         body {
-            background-color: var(--background-color);
+            background-color: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .form-container {
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 30px;
+        .login-container {
+            max-width: 400px;
+            width: 90%;
+            padding: 2rem;
             background: white;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            border-radius: 12px;
-            transition: all 0.3s ease;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
-
-        .form-container:hover {
-            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
-        }
-
-        .company-header {
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--primary-color);
-        }
-
-        .company-header h2 {
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        .table-container {
-            margin: 30px 0;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        .table {
-            margin-bottom: 0;
-            background: white;
-            width: 100%;
-        }
-
-        .table thead th {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px;
+        .logo {
             text-align: center;
-            font-weight: 600;
-            white-space: nowrap;
+            margin-bottom: 2rem;
         }
-
-        .table tbody tr {
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .table tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        .table tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.05);
-        }
-
-        .table td {
-            padding: 12px;
-            vertical-align: middle;
-            border: 1px solid #dee2e6;
-        }
-
-        .table td input {
-            width: 100%;
-            min-width: 80px;
-        }
-
-        .table td:nth-child(1) { width: 15%; }
-        .table td:nth-child(2) { width: 35%; }
-        .table td:nth-child(3) { width: 15%; }
-        .table td:nth-child(4) { width: 10%; }
-        .table td:nth-child(5) { width: 15%; text-align: right; }
-        .table td:nth-child(6) { width: 10%; text-align: center; }
-
-        .row-total {
+        .logo h2 {
+            color: #333;
             font-weight: bold;
-            color: var(--primary-color);
-            display: inline-block;
-            min-width: 80px;
-            text-align: right;
+        }
+        .btn-primary {
+            background-color: #0056b3;
+            border: none;
+            padding: 0.8rem;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #004494;
         }
     </style>
 </head>
 <body>
-    <div class="container form-container">
-        <div class="company-header">
-            <h2 class="text-primary">VAZ PRÉ-MOLDADOS</h2>
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Data:</strong> <span id="currentDate"></span></p>
-                    <p><strong>CNPJ:</strong> 29.672.312/0001-23</p>
-                </div>
-                <div class="col-md-6 text-end">
-                    <div class="document-type mb-3">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="documentType" id="purchase" value="Compra" checked>
-                            <label class="form-check-label" for="purchase">Compra</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="documentType" id="quote" value="Orçamento">
-                            <label class="form-check-label" for="quote">Orçamento</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="login-container">
+        <div class="logo">
+            <h2>VAZ PRÉ-MOLDADOS</h2>
         </div>
-
-        <form id="receiptForm">
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <label class="form-label">Nome do Cliente</label>
-                    <input type="text" class="form-control" id="clientName" required>
-                </div>
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="username" class="form-label">Usuário</label>
+                <input type="text" class="form-control" id="username" required>
             </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <label class="form-label">Endereço</label>
-                    <input type="text" class="form-control" id="address" required>
-                </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Senha</label>
+                <input type="password" class="form-control" id="password" required>
             </div>
-
-            <div class="row mb-3">
-
-                <div class="col-md-6">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" required>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label class="form-label">Bairro</label>
-                    <input type="text" class="form-control" id="neighborhood" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Cidade</label>
-                    <input type="text" class="form-control" id="city" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Telefone</label>
-                    <input type="text" class="form-control" id="phone" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">CEP</label>
-                    <input type="text" class="form-control" id="zipcode" required>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Cod</th>
-                                <th>Produto</th>
-                                <th>Preço</th>
-                                <th>Quantidade</th>
-                                <th>Total</th>
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productTableBody">
-                            <!-- Linhas da tabela serão adicionadas aqui dinamicamente -->
-                        </tbody>
-                    </table>
-                </div>
-                <button type="button" class="btn btn-success" id="addProduct">Adicionar Produto</button>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="payment-section">
-                        <h5>Condições de Pagamento</h5>
-                        <div class="mb-3">
-                            <select class="form-select" id="paymentMethod">
-                                <option value="À Vista">À Vista</option>
-                                <option value="Débito">Débito</option>
-                                <option value="Crédito">Crédito</option>
-                                <option value="Pix">Pix</option>
-                            </select>
-                        </div>
-                        <div id="creditOptions" class="mb-3" style="display: none;">
-                            <label class="form-label">Parcelas</label>
-                            <select class="form-select" id="installments">
-                                <option value="1">1x sem juros</option>
-                                <option value="2">2x sem juros</option>
-                                <option value="3">3x sem juros</option>
-                                <option value="4">4x com juros</option>
-                                <option value="5">5x com juros</option>
-                                <option value="6">6x com juros</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="delivery-section mt-3">
-                        <h5>Preferências de Entrega</h5>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="deliveryMethod" id="pickup" value="Retirada" checked>
-                            <label class="form-check-label" for="pickup">Retirar na loja</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="deliveryMethod" id="delivery" value="Entrega">
-                            <label class="form-check-label" for="delivery">Entrega no endereço</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 text-end">
-                    <div class="total-section">
-                        <h4>Total: R$ <span id="totalAmount">0.00</span></h4>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-4 text-center">
-                <button type="button" class="btn btn-primary" id="generatePDF">Gerar PDF</button>
-            </div>
+            <button type="submit" class="btn btn-primary w-100">Entrar</button>
         </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <script src="script.js">
-    if (username === 'premoldadosvaz@gmail.com' && password === 'vaz2018') {
-        sessionStorage.setItem('loggedIn', 'true');
-        window.location.href = 'recibo.html'; // Updated this line
-    } else {
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Updated credentials
+            if (username === 'premoldadosvaz@gmail.com' && password === 'vaz2018') {
+                sessionStorage.setItem('loggedIn', 'true');
+                window.location.href = 'index.html';
+            } else {
+                alert('Usuário ou senha incorretos!');
+            }
+        });
     </script>
 </body>
 </html>
