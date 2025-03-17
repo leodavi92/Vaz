@@ -108,9 +108,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'CEP',
             document.getElementById('zipcode').value
         );
-        currentY += lineHeight * 2;
+        currentY += lineHeight;  // Reduced from lineHeight * 2
 
-        // Products table
+        // Products table with reduced top margin
         const tableData = [];
         document.querySelectorAll('#productTableBody tr').forEach(row => {
             tableData.push([
@@ -122,11 +122,11 @@ document.addEventListener('DOMContentLoaded', function() {
             ]);
         });
 
-        const tableStartY = currentY + 10;
+        const tableStartY = currentY + 5;  // Reduced from 10
         doc.autoTable({
-            margin: { top: 10, left: 20, right: 20 },
+            margin: { top: 5, left: 20, right: 20 },  // Reduced top margin
             startY: tableStartY,
-            head: [['Código', 'Produto', 'Preço Unitário', 'Quantidade', 'Total']],
+            head: [['Cod', 'Produto', 'Preço', 'Quantidade', 'Total']],
             body: tableData,
             theme: 'grid',
             styles: { 
@@ -188,48 +188,45 @@ document.addEventListener('DOMContentLoaded', function() {
         const total = document.getElementById('totalAmount').textContent;
         doc.text(`Total: R$ ${total}`, pageWidth - 20, finalY, { align: 'right' });
 
-        // Add additional information section
-        finalY += 15;
+        // Add additional information section with adjusted spacing
+        finalY += 10;
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
         doc.text('Informações Adicionais:', 20, finalY);
         
-        // Add box for additional information
+        // Reduced box height and spacing
         finalY += 5;
         doc.setDrawColor(0);
         doc.setLineWidth(0.5);
-        const boxHeight = 45;
+        const boxHeight = 30;
         doc.rect(20, finalY, pageWidth - 40, boxHeight);
 
-        // Add predefined text in the box
-        doc.setFontSize(9);
+        // Adjusted text spacing
+        doc.setFontSize(8); // Reduced font size
         doc.setFont('helvetica', 'normal');
-        let textY = finalY + 7;
+        let textY = finalY + 6;
         
-        // Split long text into multiple lines
-        const pilarText = 'Pilares: A entrega e instalação são realizadas para pré-moldados destinados';
-        const pilarText2 = 'exclusivamente à instalação de pilares para caixa d\'água.';
-        doc.text(pilarText, 25, textY);
-        textY += 7;
-        doc.text(pilarText2, 25, textY);
-        textY += 10;
+        // Compact text layout
+        doc.text('Pilares: A entrega e instalação são realizadas para pré-moldados destinados', 25, textY);
+        textY += 4;
+        doc.text('exclusivamente à instalação de pilares para caixa d\'água.', 25, textY);
+        textY += 6;
         doc.text('Manilhas/Tampas: São entregues apenas, sem instalação.', 25, textY);
-        textY += 7;
+        textY += 4;
         doc.text('Garantia: Todos os produtos possuem garantia de 1 ano.', 25, textY);
 
-        // Add signature lines
-        finalY = textY + 50;
+        // Signature lines with reduced spacing
+        finalY = finalY + boxHeight + 15;
         
         // Draw signature lines
         doc.setDrawColor(0);
         doc.setLineWidth(0.5);
         
-        // Left signature (Seller)
+        // Signatures with adjusted positioning
         doc.line(30, finalY, 90, finalY);
-        doc.setFontSize(10);
+        doc.setFontSize(9);
         doc.text('Assinatura do Vendedor', 60, finalY + 5, { align: 'center' });
         
-        // Right signature (Client)
         doc.line(pageWidth - 90, finalY, pageWidth - 30, finalY);
         doc.text('Assinatura do Cliente', pageWidth - 60, finalY + 5, { align: 'center' });
 
@@ -249,21 +246,49 @@ function addRowEventListeners(row) {
 
     // Auto-fill product information based on code
     codeInput.addEventListener('input', function() {
-        // ... existing code ...
+        const code = this.value.trim();
+        if (code === '01') {
+            descriptionInput.value = 'Pilar para caixa de 1000 litros/18x18x3,70cm';
+        } else if (code === '02') {
+            descriptionInput.value = 'Pilar para caixa de 2000 litros/20x20x3,60cm';
+        }
     });
 
     // Calculate row total when price or quantity changes
     const calculateRowTotal = () => {
-        // ... existing code ...
+        const price = parseFloat(priceInput.value) || 0;
+        const quantity = parseInt(quantityInput.value) || 0;
+        const total = price * quantity;
+        row.querySelector('.row-total').textContent = total.toFixed(2);
+        calculateGrandTotal();
     };
 
     priceInput.addEventListener('input', calculateRowTotal);
     quantityInput.addEventListener('input', calculateRowTotal);
     
-    // Corrigindo o evento de remoção
     removeButton.addEventListener('click', function(e) {
         e.preventDefault();
         row.remove();
         calculateGrandTotal();
     });
 }
+
+// Add this function at the end of the file
+function calculateGrandTotal() {
+    const totals = Array.from(document.querySelectorAll('.row-total'))
+        .map(el => parseFloat(el.textContent) || 0);
+    const grandTotal = totals.reduce((sum, val) => sum + val, 0);
+    document.getElementById('totalAmount').textContent = grandTotal.toFixed(2);
+}
+
+    // Add payment method change listener
+    const paymentMethod = document.getElementById('paymentMethod');
+    const creditOptions = document.getElementById('creditOptions');
+
+    paymentMethod.addEventListener('change', function() {
+        if (this.value === 'Crédito') {
+            creditOptions.style.display = 'block';
+        } else {
+            creditOptions.style.display = 'none';
+        }
+    });
