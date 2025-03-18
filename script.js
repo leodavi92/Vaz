@@ -145,33 +145,39 @@ document.addEventListener('DOMContentLoaded', function() {
             ]);
         });
 
-        const tableStartY = currentY + 5;  // Reduced from 10
+        // Adiciona 3 linhas vazias
+        for (let i = 0; i < 3; i++) {
+            tableData.push(['', '', '', '', '']);
+        }
+
+        const tableStartY = currentY + 5;
+        // Configurações da tabela
         doc.autoTable({
-            margin: { top: 5, left: 20, right: 20 },  // Reduced top margin
             startY: tableStartY,
-            head: [['Cod', 'Produto', 'Preço', 'Quantidade', 'Total']],
+            head: [['Código', 'Descrição do Produto', 'Preço', 'Qtd', 'Total']],
             body: tableData,
-            theme: 'grid',
-            styles: { 
-                fontSize: 10,
-                cellPadding: 6,
-                lineWidth: 0.1
+            styles: {
+                fontSize: 8,
+                cellPadding: {top: 2, right: 4, bottom: 2, left: 4}
             },
             headStyles: {
-                fillColor: [60, 60, 60],
-                fontSize: 11,
-                fontStyle: 'bold',
-                halign: 'center'
-            },
-            alternateRowStyles: {
-                fillColor: [252, 252, 252]
+                fillColor: [13, 110, 253],
+                textColor: [255, 255, 255],
+                fontSize: 8
             },
             columnStyles: {
-                0: { halign: 'center' },
-                2: { halign: 'right' },
-                3: { halign: 'center' },
-                4: { halign: 'right' }
-            }
+                0: { cellWidth: 20 }, // Código
+                1: { cellWidth: 70 }, // Descrição do Produto
+                2: { cellWidth: 30 }, // Preço
+                3: { cellWidth: 20 }, // Quantidade
+                4: { cellWidth: 30 }  // Total
+            },
+            bodyStyles: {
+                lineColor: [150, 150, 150],
+                lineWidth: 0.2
+            },
+            margin: { left: 20, right: 20 },
+            tableWidth: pageWidth - 40 // Ajustado para ficar dentro da borda
         });
 
         // Payment method and total
