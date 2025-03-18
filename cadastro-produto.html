@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Produtos - Vaz Pré-Moldados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            padding: 10px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .container {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-top: 10px;
+            max-width: 100%;
+        }
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        /* Ajustes para inputs em mobile */
+        input, select, textarea {
+            font-size: 16px !important; /* Previne zoom automático no iOS */
+        }
+        /* Melhor espaçamento para botões em touch */
+        .btn {
+            padding: 12px 20px;
+            margin: 5px;
+            min-height: 44px; /* Área de toque mínima recomendada */
+        }
+        /* Ajustes para tabela em mobile */
+        .table {
+            font-size: 14px;
+        }
+        .table td, .table th {
+            padding: 12px 8px;
+        }
+        /* Melhor visualização em telas pequenas */
+        @media (max-width: 576px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+            h3 {
+                font-size: 1.2rem;
+            }
+            .btn-sm {
+                padding: 8px 12px;
+                min-height: 38px;
+            }
+        }
+    </style>
+    
+    <!-- Adicionar Firebase SDK -->
+    <!-- Atualizar os scripts do Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZpdtnh5NWtSQ2Nhn9x27tGgp8UTlc-uE",
+            authDomain: "vaz-pre-moldados.firebaseapp.com",
+            databaseURL: "https://vaz-pre-moldados-default-rtdb.firebaseio.com",
+            projectId: "vaz-pre-moldados",
+            storageBucket: "vaz-pre-moldados.firebasestorage.app",
+            messagingSenderId: "275657781452",
+            appId: "1:275657781452:web:14ccff18ac0b0df01ad269"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Cadastro de Produtos</h2>
+            <a href="menu.html" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+
+        <form id="productForm" class="row g-3">
+            <div class="col-md-2">
+                <label class="form-label">Código</label>
+                <input type="text" class="form-control" id="code" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Descrição</label>
+                <input type="text" class="form-control" id="description" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Preço</label>
+                <div class="input-group">
+                    <span class="input-group-text">R$</span>
+                    <input type="number" class="form-control" id="price" step="0.01" required>
+                </div>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Salvar Produto</button>
+            </div>
+        </form>
+
+        <div class="table-container">
+            <h3>Produtos Cadastrados</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descrição</th>
+                        <th>Preço</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="productTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!sessionStorage.getItem('loggedIn')) {
+                window.location.href = './index.html';
+                return;
+            }
+
+            loadProducts();
+
+            document.getElementById('productForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const product = {
+                    code: document.getElementById('code').value,
+                    description: document.getElementById('description').value,
+                    price: document.getElementById('price').value
+                };
+
+                // Salvar no Firebase
+                database.ref('products').push(product)
+                    .then(() => {
+                        this.reset();
+                        alert('Produto cadastrado com sucesso!');
+                    })
+                    .catch(error => {
+                        alert('Erro ao salvar produto: ' + error.message);
+                    });
+            });
+        });
+
+        function loadProducts() {
+            const tableBody = document.getElementById('productTable');
+            
+            // Carregar do Firebase
+            database.ref('products').on('value', (snapshot) => {
+                tableBody.innerHTML = '';
+                snapshot.forEach((childSnapshot) => {
+                    const product = childSnapshot.val();
+                    const productId = childSnapshot.key;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.code}</td>
+                        <td>${product.description}</td>
+                        <td>R$ ${parseFloat(product.price).toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${productId}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            });
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Tem certeza que deseja excluir este produto?')) {
+                database.ref('products/' + productId).remove()
+                    .then(() => {
+                        alert('Produto excluído com sucesso!');
+                    })
+                    .catch(error => {
+                        alert('Erro ao excluir produto: ' + error.message);
+                    });
+            }
+        }
+    </script>
+</body>
+</html>
