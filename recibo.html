@@ -251,13 +251,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script>
-        // Set current date
         document.addEventListener('DOMContentLoaded', function() {
+            // Código da data atual existente
             const today = new Date();
             const day = String(today.getDate()).padStart(2, '0');
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const year = today.getFullYear();
             document.getElementById('currentDate').textContent = `${day}/${month}/${year}`;
+
+            // Novo código para preencher dados do cliente
+            try {
+                const clientData = JSON.parse(sessionStorage.getItem('receiptClient'));
+                if (clientData) {
+                    document.getElementById('clientName').value = clientData.name || '';
+                    document.getElementById('email').value = clientData.email || '';
+                    document.getElementById('phone').value = clientData.phone || '';
+                    document.getElementById('address').value = clientData.address || '';
+                    document.getElementById('neighborhood').value = clientData.neighborhood || '';
+                    document.getElementById('city').value = clientData.city || '';
+                    document.getElementById('zipcode').value = clientData.cep || '';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados do cliente:', error);
+            }
         });
     </script>
     <script src="script.js">

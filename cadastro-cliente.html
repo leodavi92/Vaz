@@ -67,8 +67,12 @@
                 <label class="form-label">Estado</label>
                 <input type="text" class="form-control" id="state">
             </div>
+            <!-- Add button next to Save Client -->
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">Salvar Cliente</button>
+                <button type="button" class="btn btn-success" id="generateReceiptBtn" style="display: none;">
+                    <i class="fas fa-file-invoice"></i> Gerar Recibo
+                </button>
             </div>
         </form>
 
@@ -89,6 +93,27 @@
             </table>
         </div>
     </div>
+
+    <!-- Adicionar Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZpdtnh5NWtSQ2Nhn9x27tGgp8UTlc-uE",
+            authDomain: "vaz-pre-moldados.firebaseapp.com",
+            databaseURL: "https://vaz-pre-moldados-default-rtdb.firebaseio.com",
+            projectId: "vaz-pre-moldados",
+            storageBucket: "vaz-pre-moldados.firebasestorage.app",
+            messagingSenderId: "275657781452",
+            appId: "1:275657781452:web:14ccff18ac0b0df01ad269"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -113,13 +138,25 @@
                     state: document.getElementById('state').value
                 };
 
-                let clients = JSON.parse(localStorage.getItem('clients') || '[]');
-                clients.push(client);
-                localStorage.setItem('clients', JSON.stringify(clients));
-
-                loadClients();
-                this.reset();
-                alert('Cliente cadastrado com sucesso!');
+                // Save to Firebase
+                database.ref('clients').push(client)
+                    .then((ref) => {
+                        this.reset();
+                        alert('Cliente cadastrado com sucesso!');
+                        
+                        // Show and setup the receipt button
+                        const receiptBtn = document.getElementById('generateReceiptBtn');
+                        receiptBtn.style.display = 'inline-block';
+                        receiptBtn.onclick = () => {
+                            // Store client data in sessionStorage for receipt page
+                            sessionStorage.setItem('receiptClient', JSON.stringify(client));
+                            // Navigate to receipt page
+                            window.location.href = 'recibo.html';
+                        };
+                    })
+                    .catch(error => {
+                        alert('Erro ao salvar cliente: ' + error.message);
+                    });
             });
 
             // CEP Auto-complete
@@ -139,33 +176,54 @@
         });
 
         function loadClients() {
-            const clients = JSON.parse(localStorage.getItem('clients') || '[]');
             const tableBody = document.getElementById('clientTable');
-            tableBody.innerHTML = '';
-
-            clients.forEach((client, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${client.name}</td>
-                    <td>${client.phone}</td>
-                    <td>${client.email}</td>
-                    <td>${client.city}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" onclick="deleteClient(${index})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
+            
+            // Carregar do Firebase
+            database.ref('clients').on('value', (snapshot) => {
+                tableBody.innerHTML = '';
+                snapshot.forEach((childSnapshot) => {
+                    const client = childSnapshot.val();
+                    const clientId = childSnapshot.key;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${client.name}</td>
+                        <td>${client.phone}</td>
+                        <td>${client.email}</td>
+                        <td>${client.city}</td>
+                        <td>
+                            <button class="btn btn-success btn-sm me-1" onclick='generateReceipt(${JSON.stringify(client).replace(/'/g, "&apos;")})'>
+                                <i class="fas fa-file-invoice"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteClient('${clientId}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
             });
         }
 
-        function deleteClient(index) {
+        function deleteClient(clientId) {
             if (confirm('Tem certeza que deseja excluir este cliente?')) {
-                let clients = JSON.parse(localStorage.getItem('clients') || '[]');
-                clients.splice(index, 1);
-                localStorage.setItem('clients', JSON.stringify(clients));
-                loadClients();
+                database.ref('clients/' + clientId).remove()
+                    .then(() => {
+                        alert('Cliente excluído com sucesso!');
+                    })
+                    .catch(error => {
+                        alert('Erro ao excluir cliente: ' + error.message);
+                    });
+            }
+        }
+        // Add this new function
+        function generateReceipt(client) {
+            try {
+                sessionStorage.setItem('receiptClient', JSON.stringify(client));
+                window.location.href = './recibo.html';
+            } catch (error) {
+                console.error('Error generating receipt:', error);
+                alert('Erro ao gerar recibo. Por favor, tente novamente.');
             }
         }
     </script>
