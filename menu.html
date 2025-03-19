@@ -180,18 +180,18 @@
         </div>
     </div>
 
+    <!-- Adicione este script no seu menu.html -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            if (!sessionStorage.getItem('loggedIn')) {
-                window.location.href = './index.html';
-                return;
-            }
-
-            document.getElementById('logout').addEventListener('click', function(e) {
-                e.preventDefault();
-                sessionStorage.removeItem('loggedIn');
-                window.location.href = './index.html';
-            });
+            // Limpa os dados do cliente ao entrar no menu
+            sessionStorage.removeItem('receiptClient');
+        });
+    </script>
+    <!-- Adicione este script no seu menu.html -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Limpa os dados do cliente ao entrar no menu
+            sessionStorage.removeItem('receiptClient');
         });
     </script>
 </body>

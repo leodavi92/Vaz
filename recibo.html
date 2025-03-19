@@ -252,27 +252,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Código da data atual existente
+            // Código da data atual
             const today = new Date();
             const day = String(today.getDate()).padStart(2, '0');
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const year = today.getFullYear();
             document.getElementById('currentDate').textContent = `${day}/${month}/${year}`;
 
-            // Novo código para preencher dados do cliente
-            try {
-                const clientData = JSON.parse(sessionStorage.getItem('receiptClient'));
-                if (clientData) {
-                    document.getElementById('clientName').value = clientData.name || '';
-                    document.getElementById('email').value = clientData.email || '';
-                    document.getElementById('phone').value = clientData.phone || '';
-                    document.getElementById('address').value = clientData.address || '';
-                    document.getElementById('neighborhood').value = clientData.neighborhood || '';
-                    document.getElementById('city').value = clientData.city || '';
-                    document.getElementById('zipcode').value = clientData.cep || '';
+            // Verifica se há dados do cliente e se viemos da página de cadastro
+            const clientData = sessionStorage.getItem('receiptClient');
+            if (clientData) {
+                try {
+                    const client = JSON.parse(clientData);
+                    document.getElementById('clientName').value = client.name || '';
+                    document.getElementById('email').value = client.email || '';
+                    document.getElementById('phone').value = client.phone || '';
+                    document.getElementById('address').value = client.address || '';
+                    document.getElementById('neighborhood').value = client.neighborhood || '';
+                    document.getElementById('city').value = client.city || '';
+                    document.getElementById('zipcode').value = client.cep || '';
+                    
+                    // Limpa os dados após preencher
+                    sessionStorage.removeItem('receiptClient');
+                } catch (error) {
+                    console.error('Erro ao carregar dados do cliente:', error);
                 }
-            } catch (error) {
-                console.error('Erro ao carregar dados do cliente:', error);
             }
         });
     </script>
