@@ -30,241 +30,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Generate PDF button
     const generatePDFBtn = document.getElementById('generatePDF');
-    generatePDFBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        alert('Gerando PDF, aguarde...');
-        
-        const doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
+    generatePDFBtn.addEventListener('click', generatePDF);
+
+    // Payment method change listener
+    const paymentMethod = document.getElementById('paymentMethod');
+    const creditOptions = document.getElementById('creditOptions');
+    if (paymentMethod && creditOptions) {
+        paymentMethod.addEventListener('change', function() {
+            creditOptions.style.display = this.value === 'Crédito' ? 'block' : 'none';
         });
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-
-        // Add border to page
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.5);
-        doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
-
-        // Company header with improved layout
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
-        doc.text('VAZ PRÉ-MOLDADOS', pageWidth / 2, 25, { align: 'center' });
-        
-        // Add company info in a box
-        doc.setDrawColor(240, 240, 240);
-        doc.setFillColor(250, 250, 250);
-        doc.rect(20, 35, pageWidth - 40, 20, 'F');
-        
-        doc.setFontSize(10);
-        doc.text('Telefone: (65) 99235-3982', 25, 43);
-        doc.text('E-mail: premoldadosvaz@gmail.com', 25, 48);
-        
-        const documentType = document.querySelector('input[name="documentType"]:checked').value;
-        doc.setFontSize(16);
-        doc.text(documentType.toUpperCase(), pageWidth - 25, 45, { align: 'right' });
-
-        // Customer information with adjusted starting position
-        const startY = 70; // Increased from 45
-        const lineHeight = 7;
-        let currentY = startY;
-
-        // Function to add a field with label
-        function addField(label, value, y) {
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.text(label, 20, y);
-            doc.setFont('helvetica', 'normal');
-            doc.text(value || '', 20, y + 5);
-            doc.setDrawColor(200, 200, 200);
-            doc.setLineWidth(0.1);
-            doc.line(20, y + 6, 190, y + 6);
-        }
-
-        // Add customer fields
-        addField('Nome do Cliente', document.getElementById('clientName').value, currentY);
-        currentY += lineHeight * 2;
-
-        addField('Endereço', document.getElementById('address').value, currentY);
-        currentY += lineHeight * 2;
-
-        addField('Email', document.getElementById('email').value, currentY);
-        currentY += lineHeight * 2;
-
-        // Add fields in two columns
-        const colWidth = 85;
-        function addTwoColumnFields(y, field1Label, field1Value, field2Label, field2Value) {
-            // First column
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.text(field1Label, 20, y);
-            doc.setFont('helvetica', 'normal');
-            doc.text(field1Value || '', 20, y + 5);
-            doc.setDrawColor(200, 200, 200);
-            doc.setLineWidth(0.1);
-            doc.line(20, y + 6, 95, y + 6);
-
-            // Second column
-            doc.setFont('helvetica', 'bold');
-            doc.text(field2Label, 105, y);
-            doc.setFont('helvetica', 'normal');
-            doc.text(field2Value || '', 105, y + 5);
-            doc.line(105, y + 6, 180, y + 6);
-        }
-
-        // Add two-column fields
-        addTwoColumnFields(
-            currentY,
-            'Bairro',
-            document.getElementById('neighborhood').value,
-            'Cidade',
-            document.getElementById('city').value
-        );
-        currentY += lineHeight * 2;
-
-        addTwoColumnFields(
-            currentY,
-            'Telefone',
-            document.getElementById('phone').value,
-            'CEP',
-            document.getElementById('zipcode').value
-        );
-        currentY += lineHeight;  // Reduced from lineHeight * 2
-
-        // Products table with reduced top margin
-        const tableData = [];
-        document.querySelectorAll('#productTableBody tr').forEach(row => {
-            tableData.push([
-                row.querySelector('[name="code"]').value,
-                row.querySelector('[name="description"]').value,
-                `R$ ${row.querySelector('[name="price"]').value}`,
-                row.querySelector('[name="quantity"]').value,
-                `R$ ${row.querySelector('.row-total').textContent}`
-            ]);
-        });
-
-        // Adiciona 3 linhas vazias
-        for (let i = 0; i < 3; i++) {
-            tableData.push(['', '', '', '', '']);
-        }
-
-        const tableStartY = currentY + 5;
-        // Configurações da tabela
-        doc.autoTable({
-            startY: tableStartY,
-            head: [['Código', 'Descrição do Produto', 'Preço', 'Qtd', 'Total']],
-            body: tableData,
-            styles: {
-                fontSize: 8,
-                cellPadding: {top: 2, right: 4, bottom: 2, left: 4}
-            },
-            headStyles: {
-                fillColor: [13, 110, 253],
-                textColor: [255, 255, 255],
-                fontSize: 8
-            },
-            columnStyles: {
-                0: { cellWidth: 20 }, // Código
-                1: { cellWidth: 70 }, // Descrição do Produto
-                2: { cellWidth: 30 }, // Preço
-                3: { cellWidth: 20 }, // Quantidade
-                4: { cellWidth: 30 }  // Total
-            },
-            bodyStyles: {
-                lineColor: [150, 150, 150],
-                lineWidth: 0.2
-            },
-            margin: { left: 20, right: 20 },
-            tableWidth: pageWidth - 40 // Ajustado para ficar dentro da borda
-        });
-
-        // Payment method and total
-        let finalY = doc.autoTable.previous.finalY + 10;
-
-        // Check if we need a new page for payment info
-        if (finalY > doc.internal.pageSize.height - 50) {
-            doc.addPage();
-            finalY = 20;
-        }
-
-        // Add payment information
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Informações de Pagamento', 20, finalY);
-        finalY += 10;
-
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        const paymentMethod = document.getElementById('paymentMethod').value;
-        doc.text(`Forma de Pagamento: ${paymentMethod}`, 20, finalY);
-        finalY += 7;
-
-        if (paymentMethod === 'Crédito') {
-            const installments = document.getElementById('installments').value;
-            doc.text(`Parcelas: ${installments}x`, 20, finalY);
-            finalY += 7;
-        }
-
-        // Add delivery information if selected
-        const delivery = document.getElementById('delivery').checked;
-        if (delivery) {
-            doc.text('Entrega: Sim - No endereço informado', 20, finalY);
-            finalY += 7;
-        }
-
-        // Add total amount
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        const total = document.getElementById('totalAmount').textContent;
-        doc.text(`Total: R$ ${total}`, pageWidth - 20, finalY, { align: 'right' });
-
-        // Add additional information section with adjusted spacing
-        finalY += 10;
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Informações Adicionais:', 20, finalY);
-        
-        // Reduced box height and spacing
-        finalY += 5;
-        doc.setDrawColor(0);
-        doc.setLineWidth(0.5);
-        const boxHeight = 30;
-        doc.rect(20, finalY, pageWidth - 40, boxHeight);
-
-        // Adjusted text spacing
-        doc.setFontSize(8); // Reduced font size
-        doc.setFont('helvetica', 'normal');
-        let textY = finalY + 6;
-        
-        // Compact text layout
-        doc.text('Pilares: A entrega e instalação são realizadas para pré-moldados destinados', 25, textY);
-        textY += 4;
-        doc.text('exclusivamente à instalação de pilares para caixa d\'água.', 25, textY);
-        textY += 6;
-        doc.text('Manilhas/Tampas: São entregues apenas, sem instalação.', 25, textY);
-        textY += 4;
-        doc.text('Garantia: Todos os produtos possuem garantia de 1 ano.', 25, textY);
-
-        // Signature lines with reduced spacing
-        finalY = finalY + boxHeight + 15;
-        
-        // Draw signature lines
-        doc.setDrawColor(0);
-        doc.setLineWidth(0.5);
-        
-        // Signatures with adjusted positioning
-        doc.line(30, finalY, 90, finalY);
-        doc.setFontSize(9);
-        doc.text('Assinatura do Vendedor', 60, finalY + 5, { align: 'center' });
-        
-        doc.line(pageWidth - 90, finalY, pageWidth - 30, finalY);
-        doc.text('Assinatura do Cliente', pageWidth - 60, finalY + 5, { align: 'center' });
-
-        // Save the PDF
-        doc.save('recibo.pdf');
-    });
+    }
 });
 
 
@@ -324,3 +99,298 @@ function calculateGrandTotal() {
             creditOptions.style.display = 'none';
         }
     });
+
+
+// Adicionar no início do arquivo, após window.jsPDF = window.jspdf.jsPDF;
+// Configuração do Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyBZpdtnh5NWtSQ2Nhn9x27tGgp8UTlc-uE",
+    authDomain: "vaz-pre-moldados.firebaseapp.com",
+    databaseURL: "https://vaz-pre-moldados-default-rtdb.firebaseio.com",
+    projectId: "vaz-pre-moldados",
+    storageBucket: "vaz-pre-moldados.firebasestorage.app",
+    messagingSenderId: "275657781452",
+    appId: "1:275657781452:web:14ccff18ac0b0df01ad269"
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// Substituir a função generatePDF existente por esta:
+function generatePDF() {
+    const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+    });
+
+    // Salvar dados do recibo no Firebase
+    const receiptData = {
+        date: document.getElementById('currentDate').textContent,
+        client: document.getElementById('clientName').value,
+        type: document.querySelector('input[name="documentType"]:checked').value,
+        total: document.getElementById('totalAmount').textContent,
+        paymentMethod: document.getElementById('paymentMethod').value,
+        status: 'Concluído',
+        products: getProductsData()
+    };
+
+    // Salvar no Firebase antes de gerar o PDF
+    database.ref('receipts').push(receiptData)
+        .then(() => {
+            // Continuar com o resto do código de geração do PDF
+            generatePDFDocument(doc, receiptData);
+            doc.save('recibo.pdf');
+        })
+        .catch(error => {
+            alert('Erro ao salvar recibo: ' + error.message);
+        });
+}
+
+function generatePDFDocument(receiptData) {
+    const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+    });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // Add border to page
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+    // Company header with improved layout
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('VAZ PRÉ-MOLDADOS', pageWidth / 2, 25, { align: 'center' });
+    
+    // Add company info in a box
+    doc.setDrawColor(240, 240, 240);
+    doc.setFillColor(250, 250, 250);
+    doc.rect(20, 35, pageWidth - 40, 20, 'F');
+    
+    doc.setFontSize(10);
+    doc.text('Telefone: (65) 99235-3982', 25, 43);
+    doc.text('E-mail: premoldadosvaz@gmail.com', 25, 48);
+    
+    const documentType = document.querySelector('input[name="documentType"]:checked').value;
+    doc.setFontSize(16);
+    doc.text(documentType.toUpperCase(), pageWidth - 25, 45, { align: 'right' });
+
+    // Customer information with adjusted starting position
+    const startY = 70; // Increased from 45
+    const lineHeight = 7;
+    let currentY = startY;
+
+    // Function to add a field with label
+    function addField(label, value, y) {
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, 20, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(value || '', 20, y + 5);
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.1);
+        doc.line(20, y + 6, 190, y + 6);
+    }
+
+    // Add customer fields
+    addField('Nome do Cliente', document.getElementById('clientName').value, currentY);
+    currentY += lineHeight * 2;
+
+    addField('Endereço', document.getElementById('address').value, currentY);
+    currentY += lineHeight * 2;
+
+    addField('Email', document.getElementById('email').value, currentY);
+    currentY += lineHeight * 2;
+
+    // Add fields in two columns
+    const colWidth = 85;
+    function addTwoColumnFields(y, field1Label, field1Value, field2Label, field2Value) {
+        // First column
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(field1Label, 20, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(field1Value || '', 20, y + 5);
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.1);
+        doc.line(20, y + 6, 95, y + 6);
+
+        // Second column
+        doc.setFont('helvetica', 'bold');
+        doc.text(field2Label, 105, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(field2Value || '', 105, y + 5);
+        doc.line(105, y + 6, 180, y + 6);
+    }
+
+    // Add two-column fields
+    addTwoColumnFields(
+        currentY,
+        'Bairro',
+        document.getElementById('neighborhood').value,
+        'Cidade',
+        document.getElementById('city').value
+    );
+    currentY += lineHeight * 2;
+
+    addTwoColumnFields(
+        currentY,
+        'Telefone',
+        document.getElementById('phone').value,
+        'CEP',
+        document.getElementById('zipcode').value
+    );
+    currentY += lineHeight;  // Reduced from lineHeight * 2
+
+    // Products table with reduced top margin
+    const tableData = [];
+    document.querySelectorAll('#productTableBody tr').forEach(row => {
+        tableData.push([
+            row.querySelector('[name="code"]').value,
+            row.querySelector('[name="description"]').value,
+            `R$ ${row.querySelector('[name="price"]').value}`,
+            row.querySelector('[name="quantity"]').value,
+            `R$ ${row.querySelector('.row-total').textContent}`
+        ]);
+    });
+
+    // Adiciona 3 linhas vazias
+    for (let i = 0; i < 3; i++) {
+        tableData.push(['', '', '', '', '']);
+    }
+
+    const tableStartY = currentY + 5;
+    // Configurações da tabela
+    doc.autoTable({
+        startY: tableStartY,
+        head: [['Código', 'Descrição do Produto', 'Preço', 'Qtd', 'Total']],
+        body: tableData,
+        styles: {
+            fontSize: 8,
+            cellPadding: {top: 2, right: 4, bottom: 2, left: 4}
+        },
+        headStyles: {
+            fillColor: [13, 110, 253],
+            textColor: [255, 255, 255],
+            fontSize: 8
+        },
+        columnStyles: {
+            0: { cellWidth: 20 }, // Código
+            1: { cellWidth: 70 }, // Descrição do Produto
+            2: { cellWidth: 30 }, // Preço
+            3: { cellWidth: 20 }, // Quantidade
+            4: { cellWidth: 30 }  // Total
+        },
+        bodyStyles: {
+            lineColor: [150, 150, 150],
+            lineWidth: 0.2
+        },
+        margin: { left: 20, right: 20 },
+        tableWidth: pageWidth - 40 // Ajustado para ficar dentro da borda
+    });
+
+    // Payment method and total
+    let finalY = doc.autoTable.previous.finalY + 10;
+
+    // Check if we need a new page for payment info
+    if (finalY > doc.internal.pageSize.height - 50) {
+        doc.addPage();
+        finalY = 20;
+    }
+
+    // Add payment information
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Informações de Pagamento', 20, finalY);
+    finalY += 10;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    doc.text(`Forma de Pagamento: ${paymentMethod}`, 20, finalY);
+    finalY += 7;
+
+    if (paymentMethod === 'Crédito') {
+        const installments = document.getElementById('installments').value;
+        doc.text(`Parcelas: ${installments}x`, 20, finalY);
+        finalY += 7;
+    }
+
+    // Add delivery information if selected
+    const delivery = document.getElementById('delivery').checked;
+    if (delivery) {
+        doc.text('Entrega: Sim - No endereço informado', 20, finalY);
+        finalY += 7;
+    }
+
+    // Add total amount
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    const total = document.getElementById('totalAmount').textContent;
+    doc.text(`Total: R$ ${total}`, pageWidth - 20, finalY, { align: 'right' });
+
+    // Add additional information section with adjusted spacing
+    finalY += 10;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Informações Adicionais:', 20, finalY);
+    
+    // Reduced box height and spacing
+    finalY += 5;
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    const boxHeight = 30;
+    doc.rect(20, finalY, pageWidth - 40, boxHeight);
+
+    // Adjusted text spacing
+    doc.setFontSize(8); // Reduced font size
+    doc.setFont('helvetica', 'normal');
+    let textY = finalY + 6;
+    
+    // Compact text layout
+    doc.text('Pilares: A entrega e instalação são realizadas para pré-moldados destinados', 25, textY);
+    textY += 4;
+    doc.text('exclusivamente à instalação de pilares para caixa d\'água.', 25, textY);
+    textY += 6;
+    doc.text('Manilhas/Tampas: São entregues apenas, sem instalação.', 25, textY);
+    textY += 4;
+    doc.text('Garantia: Todos os produtos possuem garantia de 1 ano.', 25, textY);
+
+    // Signature lines with reduced spacing
+    finalY = finalY + boxHeight + 15;
+    
+    // Draw signature lines
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    
+    // Signatures with adjusted positioning
+    doc.line(30, finalY, 90, finalY);
+    doc.setFontSize(9);
+    doc.text('Assinatura do Vendedor', 60, finalY + 5, { align: 'center' });
+    
+    doc.line(pageWidth - 90, finalY, pageWidth - 30, finalY);
+    doc.text('Assinatura do Cliente', pageWidth - 60, finalY + 5, { align: 'center' });
+
+    // Save the PDF
+    doc.save('recibo.pdf');
+}
+
+function getProductsData() {
+    const products = [];
+    const rows = document.querySelectorAll('#productTableBody tr');
+    rows.forEach(row => {
+        products.push({
+            code: row.querySelector('[name="code"]').value,
+            description: row.querySelector('[name="description"]').value,
+            price: row.querySelector('[name="price"]').value,
+            quantity: row.querySelector('[name="quantity"]').value,
+            total: row.querySelector('.row-total').textContent
+        });
+    });
+    return products;
+}

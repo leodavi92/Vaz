@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Despesas - Vaz Pré-Moldados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .expenses-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 30px;
+            background: white;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+        .expense-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+        .expense-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="expenses-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary">Controle de Despesas</h2>
+            <button class="btn btn-secondary" onclick="window.location.href='menu.html'">
+                <i class="fas fa-arrow-left"></i> Voltar ao Menu
+            </button>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+                    <i class="fas fa-plus"></i> Nova Despesa
+                </button>
+            </div>
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="searchExpense" placeholder="Buscar despesas...">
+            </div>
+        </div>
+
+        <div id="expensesList">
+            <!-- Despesas serão carregadas aqui -->
+        </div>
+
+        <!-- Modal para adicionar despesa -->
+        <div class="modal fade" id="addExpenseModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nova Despesa</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="expenseForm">
+                            <div class="mb-3">
+                                <label class="form-label">Descrição</label>
+                                <input type="text" class="form-control" id="expenseDescription" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Valor</label>
+                                <input type="number" class="form-control" id="expenseAmount" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Categoria</label>
+                                <select class="form-select" id="expenseCategory">
+                                    <option value="Materiais">Materiais</option>
+                                    <option value="Funcionários">Funcionários</option>
+                                    <option value="Manutenção">Manutenção</option>
+                                    <option value="Energia">Energia</option>
+                                    <option value="Água">Água</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Data</label>
+                                <input type="date" class="form-control" id="expenseDate" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="saveExpense()">Salvar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZpdtnh5NWtSQ2Nhn9x27tGgp8UTlc-uE",
+            authDomain: "vaz-pre-moldados.firebaseapp.com",
+            databaseURL: "https://vaz-pre-moldados-default-rtdb.firebaseio.com",
+            projectId: "vaz-pre-moldados",
+            storageBucket: "vaz-pre-moldados.firebasestorage.app",
+            messagingSenderId: "275657781452",
+            appId: "1:275657781452:web:14ccff18ac0b0df01ad269"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        function saveExpense() {
+            const expense = {
+                description: document.getElementById('expenseDescription').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                category: document.getElementById('expenseCategory').value,
+                date: document.getElementById('expenseDate').value,
+                createdAt: new Date().toISOString()
+            };
+
+            database.ref('expenses').push(expense)
+                .then(() => {
+                    alert('Despesa registrada com sucesso!');
+                    document.getElementById('expenseForm').reset();
+                    bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
+                })
+                .catch(error => {
+                    alert('Erro ao registrar despesa: ' + error.message);
+                });
+        }
+
+        // Carregar e exibir despesas
+        function loadExpenses() {
+            const expensesList = document.getElementById('expensesList');
+            database.ref('expenses').on('value', (snapshot) => {
+                expensesList.innerHTML = '';
+                snapshot.forEach((childSnapshot) => {
+                    const expense = childSnapshot.val();
+                    const card = document.createElement('div');
+                    card.className = 'expense-card';
+                    card.innerHTML = `
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <strong>Data:</strong> ${expense.date}
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Descrição:</strong> ${expense.description}
+                            </div>
+                            <div class="col-md-2">
+                                <strong>Categoria:</strong> ${expense.category}
+                            </div>
+                            <div class="col-md-2">
+                                <strong>Valor:</strong> R$ ${expense.amount.toFixed(2)}
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <button class="btn btn-danger btn-sm" onclick="deleteExpense('${childSnapshot.key}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    expensesList.appendChild(card);
+                });
+            });
+        }
+
+        function deleteExpense(expenseId) {
+            if (confirm('Tem certeza que deseja excluir esta despesa?')) {
+                database.ref('expenses/' + expenseId).remove()
+                    .then(() => alert('Despesa excluída com sucesso!'))
+                    .catch(error => alert('Erro ao excluir despesa: ' + error.message));
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadExpenses);
+    </script>
+</body>
+</html>
