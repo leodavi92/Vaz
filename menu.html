@@ -190,27 +190,34 @@
                 <p>Controle de gastos</p>
             </a>
 
-            <a href="#" class="menu-item" id="logout">
-                <i class="fas fa-sign-out-alt"></i>
-                <h3>Sair</h3>
-                <p>Encerrar sessão</p>
-            </a>
+            <!-- Alterar o link de Sair para usar onclick ao invés de href -->
+                <div class="menu-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <h3>Sair</h3>
+                    <p>Encerrar sessão</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Adicione este script no seu menu.html -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se usuário está logado
+            if (!sessionStorage.getItem('loggedIn')) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
             // Limpa os dados do cliente ao entrar no menu
             sessionStorage.removeItem('receiptClient');
         });
-    </script>
-    <!-- Adicione este script no seu menu.html -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Limpa os dados do cliente ao entrar no menu
-            sessionStorage.removeItem('receiptClient');
-        });
+
+        function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
     </script>
 </body>
 </html>

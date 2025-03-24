@@ -430,49 +430,47 @@
                 // Criar datas para os últimos 10 dias
                 const today = new Date();
                 for (let i = 9; i >= 0; i--) {
-                    const date = new Date(today);
-                    date.setDate(date.getDate() - i);
+                    const date = new Date();
+                    date.setDate(today.getDate() - i);
                     const dayKey = date.toLocaleDateString('pt-BR');
                     salesData[dayKey] = 0;
                 }
 
                 // Somar recibos por dia
-                receipts.forEach((receipt, index) => {
-                    if (!receipt.date || !receipt.total) {
-                        console.log('Recibo inválido - faltando data ou total');
-                        return;
-                    }
-
-                    if (salesData.hasOwnProperty(receipt.date)) {
+                receipts.forEach(receipt => {
+                    if (receipt.date && receipt.total && receipt.type === 'Venda') {
+                        // Converter a data ISO para formato brasileiro
+                        const [year, month, day] = receipt.date.split('-');
+                        const brDate = `${day}/${month}/${year}`;
+                        
+                        // Processar valor da mesma forma que no totalRevenue
                         const cleanValue = receipt.total
                             .replace('R$', '')
                             .replace(/\./g, '')
                             .replace(',', '.')
                             .trim();
+                        const value = parseFloat(cleanValue) / 100; // Dividir por 100 para converter centavos em reais
                         
-                        const value = parseFloat(cleanValue);
-                        
-                        if (!isNaN(value)) {
-                            salesData[receipt.date] += value / 100;
-                            console.log(`Valor adicionado ao dia ${receipt.date}:`, value / 100);
+                        if (!isNaN(value) && salesData.hasOwnProperty(brDate)) {
+                            salesData[brDate] += value;
+                            console.log('Data:', brDate, 'Valor processado:', value, 'Acumulado:', salesData[brDate]);
                         }
                     }
                 });
 
-                const sortedDays = Object.keys(salesData).sort((a, b) => {
+                console.log('Dados de vendas:', salesData); // Debug
+
+                const sortedDates = Object.keys(salesData).sort((a, b) => {
                     const [diaA, mesA, anoA] = a.split('/');
                     const [diaB, mesB, anoB] = b.split('/');
                     return new Date(anoA, mesA-1, diaA) - new Date(anoB, mesB-1, diaB);
                 });
 
-                const result = {
-                    labels: sortedDays,
-                    values: sortedDays.map(day => salesData[day])
+                return {
+                    labels: sortedDates,
+                    values: sortedDates.map(date => salesData[date])
                 };
-
-                console.log('\nResultado final formatado:', JSON.stringify(result, null, 2));
-                return result;
             }
         </script>
-</body>
+    </body>
 </html>

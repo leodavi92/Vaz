@@ -103,9 +103,15 @@
         database.ref('receipts').on('value', (snapshot) => {
             const receipts = [];
             snapshot.forEach((childSnapshot) => {
+                const receipt = childSnapshot.val();
+                // Formatar a data se ela existir
+                if (receipt.date) {
+                    const [year, month, day] = receipt.date.split('-');
+                    receipt.formattedDate = `${day}/${month}/${year}`;
+                }
                 receipts.push({
                     id: childSnapshot.key,
-                    ...childSnapshot.val()
+                    ...receipt
                 });
             });
 
@@ -120,7 +126,7 @@
                 card.innerHTML = `
                     <div class="row align-items-center">
                         <div class="col-md-3">
-                            <strong>Data:</strong> ${receipt.date}<br>
+                            <strong>Data:</strong> ${receipt.formattedDate || 'Não informada'}<br>
                             <strong>Cliente:</strong> ${receipt.client}
                         </div>
                         <div class="col-md-3">

@@ -127,7 +127,7 @@ function generatePDF() {
 
     // Salvar dados do recibo no Firebase
     const receiptData = {
-        date: document.getElementById('currentDate').textContent,
+        date: document.getElementById('currentDate').value, // Alterado de .textContent para .value
         client: document.getElementById('clientName').value,
         type: document.querySelector('input[name="documentType"]:checked').value,
         total: document.getElementById('totalAmount').textContent,
