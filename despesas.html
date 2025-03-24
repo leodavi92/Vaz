@@ -3,107 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Despesas - Vaz Pré-Moldados</title>
+    <title>Despesas - Vaz Pré-Moldados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        .expenses-container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 30px;
+        .container {
             background: white;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            border-radius: 12px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
         }
-        .expense-card {
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            margin-bottom: 15px;
+        .expense-type {
+            margin-bottom: 20px;
             padding: 15px;
-            transition: transform 0.2s;
+            border-radius: 10px;
+            background: #f8f9fa;
         }
-        .expense-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        .fixed-expense {
+            background: #e3f2fd;
+            border-left: 4px solid #0d6efd;
+        }
+        .expense-total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #dc3545;
         }
     </style>
 </head>
 <body>
-    <div class="expenses-container">
+    <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="text-primary">Controle de Despesas</h2>
-            <button class="btn btn-secondary" onclick="window.location.href='menu.html'">
-                <i class="fas fa-arrow-left"></i> Voltar ao Menu
-            </button>
+            <h2>Controle de Despesas</h2>
+            <a href="menu.html" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
         </div>
 
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
-                    <i class="fas fa-plus"></i> Nova Despesa
-                </button>
-            </div>
-            <div class="col-md-6">
-                <input type="text" class="form-control" id="searchExpense" placeholder="Buscar despesas...">
-            </div>
-        </div>
-
-        <div id="expensesList">
-            <!-- Despesas serão carregadas aqui -->
-        </div>
-
-        <!-- Modal para adicionar despesa -->
-        <div class="modal fade" id="addExpenseModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Nova Despesa</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <!-- Despesas Fixas -->
+        <div class="expense-type fixed-expense mb-4">
+            <h4><i class="fas fa-thumbtack"></i> Despesas Fixas</h4>
+            <form id="fixedExpenseForm" class="mb-3">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="fixedExpenseName" placeholder="Nome da despesa" required>
                     </div>
-                    <div class="modal-body">
-                        <form id="expenseForm">
-                            <div class="mb-3">
-                                <label class="form-label">Descrição</label>
-                                <input type="text" class="form-control" id="expenseDescription" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Valor</label>
-                                <input type="number" class="form-control" id="expenseAmount" step="0.01" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Categoria</label>
-                                <select class="form-select" id="expenseCategory">
-                                    <option value="Materiais">Materiais</option>
-                                    <option value="Funcionários">Funcionários</option>
-                                    <option value="Manutenção">Manutenção</option>
-                                    <option value="Energia">Energia</option>
-                                    <option value="Água">Água</option>
-                                    <option value="Outros">Outros</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Data</label>
-                                <input type="date" class="form-control" id="expenseDate" required>
-                            </div>
-                        </form>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control" id="fixedExpenseValue" placeholder="Valor" required>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" onclick="saveExpense()">Salvar</button>
+                    <div class="col-md-3">
+                        <select class="form-control" id="fixedExpenseFrequency" required>
+                            <option value="semanal">Semanal</option>
+                            <option value="mensal">Mensal</option>
+                            <option value="trimestral">Trimestral</option>
+                            <option value="anual">Anual</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Adicionar</button>
+                    </div>
+                </div>
+            </form>
+            <div id="fixedExpensesList"></div>
+        </div>
+
+        <!-- Despesas Variáveis -->
+        <div class="expense-type mb-4">
+            <h4><i class="fas fa-receipt"></i> Despesas Variáveis</h4>
+            <form id="variableExpenseForm" class="mb-3">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="expenseName" placeholder="Nome da despesa" required>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" id="expenseValue" placeholder="Valor" required>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" class="form-control" id="expenseDate" required>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="expenseCategory" required>
+                            <option value="">Selecione a categoria</option>
+                            <option value="alimentacao">Alimentação</option>
+                            <option value="materiais">Materiais</option>
+                            <option value="transporte">Transporte</option>
+                            <option value="servicos">Serviços</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Adicionar</button>
+                    </div>
+                </div>
+            </form>
+            <div id="expensesList"></div>
+        </div>
+
+        <!-- Resumo -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Resumo Mensal</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Despesas Fixas</h6>
+                        <p>Total: <span id="totalFixed" class="expense-total">R$ 0,00</span></p>
+                        <p>Pendente: <span id="totalFixedPending" class="expense-total text-warning">R$ 0,00</span></p>
+                        <p>Pago: <span id="totalFixedPaid" class="expense-total text-success">R$ 0,00</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Despesas Variáveis</h6>
+                        <p>Total: <span id="totalVariable" class="expense-total">R$ 0,00</span></p>
+                        <p>Pendente: <span id="totalVariablePending" class="expense-total text-warning">R$ 0,00</span></p>
+                        <p>Pago: <span id="totalVariablePaid" class="expense-total text-success">R$ 0,00</span></p>
+                    </div>
+                    <div class="col-12 mt-3 border-top pt-3">
+                        <h6>Total Geral</h6>
+                        <p>Total: <span id="totalExpenses" class="expense-total">R$ 0,00</span></p>
+                        <p>Total Pendente: <span id="totalPending" class="expense-total text-warning">R$ 0,00</span></p>
+                        <p>Total Pago: <span id="totalPaid" class="expense-total text-success">R$ 0,00</span></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Remove all script tags from inside forms -->
+    
+    <!-- At the bottom of the body, before closing </body> tag, keep only one script section: -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
     <script>
-        // Configuração do Firebase
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBZpdtnh5NWtSQ2Nhn9x27tGgp8UTlc-uE",
             authDomain: "vaz-pre-moldados.firebaseapp.com",
@@ -114,73 +150,201 @@
             appId: "1:275657781452:web:14ccff18ac0b0df01ad269"
         };
 
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        function saveExpense() {
+        // Check login
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!sessionStorage.getItem('loggedIn')) {
+                window.location.href = './index.html';
+                return;
+            }
+            loadExpenses();
+        });
+
+        // Add Fixed Expense
+        document.getElementById('fixedExpenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
             const expense = {
-                description: document.getElementById('expenseDescription').value,
-                amount: parseFloat(document.getElementById('expenseAmount').value),
-                category: document.getElementById('expenseCategory').value,
-                date: document.getElementById('expenseDate').value,
-                createdAt: new Date().toISOString()
+                name: document.getElementById('fixedExpenseName').value,
+                value: parseFloat(document.getElementById('fixedExpenseValue').value),
+                frequency: document.getElementById('fixedExpenseFrequency').value,
+                status: 'pendente',
+                dateAdded: new Date().toISOString(),
+                type: 'fixed'
             };
 
-            database.ref('expenses').push(expense)
+            database.ref('expenses/fixed').push(expense)
                 .then(() => {
-                    alert('Despesa registrada com sucesso!');
-                    document.getElementById('expenseForm').reset();
-                    bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
+                    this.reset();
+                    loadExpenses();
                 })
-                .catch(error => {
-                    alert('Erro ao registrar despesa: ' + error.message);
-                });
-        }
+                .catch(error => alert('Erro ao salvar: ' + error.message));
+        });
 
-        // Carregar e exibir despesas
+        // Add Variable Expense
+        document.getElementById('variableExpenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const expense = {
+                name: document.getElementById('expenseName').value,
+                value: parseFloat(document.getElementById('expenseValue').value),
+                date: document.getElementById('expenseDate').value,
+                category: document.getElementById('expenseCategory').value,
+                status: 'pendente',
+                dateAdded: new Date().toISOString(),
+                type: 'variable'
+            };
+
+            database.ref('expenses/variable').push(expense)
+                .then(() => {
+                    this.reset();
+                    loadExpenses();
+                })
+                .catch(error => alert('Erro ao salvar: ' + error.message));
+        });
+
+        // Load and Display Expenses
         function loadExpenses() {
-            const expensesList = document.getElementById('expensesList');
-            database.ref('expenses').on('value', (snapshot) => {
-                expensesList.innerHTML = '';
-                snapshot.forEach((childSnapshot) => {
-                    const expense = childSnapshot.val();
-                    const card = document.createElement('div');
-                    card.className = 'expense-card';
-                    card.innerHTML = `
-                        <div class="row align-items-center">
-                            <div class="col-md-3">
-                                <strong>Data:</strong> ${expense.date}
+            const fixedList = document.getElementById('fixedExpensesList');
+            const variableList = document.getElementById('expensesList');
+            let totalFixed = 0;
+            let totalVariable = 0;
+
+            // Load Fixed Expenses
+            database.ref('expenses/fixed').once('value', (snapshot) => {
+                fixedList.innerHTML = '';
+                totalFixed = 0; // Reset antes de somar
+                snapshot.forEach((child) => {
+                    const expense = child.val();
+                    totalFixed += expense.value;
+                    
+                    fixedList.innerHTML += `
+                        <div class="alert ${expense.status === 'pago' ? 'alert-success' : 'alert-warning'} d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${expense.name}</strong> - R$ ${expense.value.toFixed(2)} 
+                                <span class="badge bg-primary">${expense.frequency}</span>
+                                <span class="badge ${expense.status === 'pago' ? 'bg-success' : 'bg-warning'}">${expense.status}</span>
+                                <br>
+                                <small class="text-muted">Adicionado em: ${new Date(expense.dateAdded).toLocaleDateString()}</small>
                             </div>
-                            <div class="col-md-3">
-                                <strong>Descrição:</strong> ${expense.description}
-                            </div>
-                            <div class="col-md-2">
-                                <strong>Categoria:</strong> ${expense.category}
-                            </div>
-                            <div class="col-md-2">
-                                <strong>Valor:</strong> R$ ${expense.amount.toFixed(2)}
-                            </div>
-                            <div class="col-md-2 text-end">
-                                <button class="btn btn-danger btn-sm" onclick="deleteExpense('${childSnapshot.key}')">
+                            <div>
+                                <button class="btn btn-${expense.status === 'pago' ? 'warning' : 'success'} btn-sm me-2" 
+                                    onclick="toggleExpenseStatus('${child.key}', 'fixed', '${expense.status}')">
+                                    <i class="fas fa-${expense.status === 'pago' ? 'times' : 'check'}"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteExpense('${child.key}', 'fixed')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </div>
                     `;
-                    expensesList.appendChild(card);
+                });
+                
+                // Load Variable Expenses
+                database.ref('expenses/variable').once('value', (snapshot) => {
+                    variableList.innerHTML = '';
+                    totalVariable = 0; // Reset antes de somar
+                    snapshot.forEach((child) => {
+                        const expense = child.val();
+                        totalVariable += expense.value;
+                        
+                        variableList.innerHTML += `
+                            <div class="alert ${expense.status === 'pago' ? 'alert-success' : 'alert-warning'} d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${expense.name}</strong> - R$ ${expense.value.toFixed(2)}
+                                    <span class="badge bg-info">${expense.category}</span>
+                                    <span class="badge ${expense.status === 'pago' ? 'bg-success' : 'bg-warning'}">${expense.status}</span>
+                                    <br>
+                                    <small class="text-muted">Data: ${new Date(expense.date).toLocaleDateString()}</small>
+                                    <small class="text-muted">Adicionado em: ${new Date(expense.dateAdded).toLocaleDateString()}</small>
+                                </div>
+                                <div>
+                                    <button class="btn btn-${expense.status === 'pago' ? 'warning' : 'success'} btn-sm me-2" 
+                                        onclick="toggleExpenseStatus('${child.key}', 'variable', '${expense.status}')">
+                                        <i class="fas fa-${expense.status === 'pago' ? 'times' : 'check'}"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteExpense('${child.key}', 'variable')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // Atualizar totais apenas depois de carregar ambos os tipos
+                    updateTotals(totalFixed, totalVariable);
                 });
             });
         }
 
-        function deleteExpense(expenseId) {
-            if (confirm('Tem certeza que deseja excluir esta despesa?')) {
-                database.ref('expenses/' + expenseId).remove()
-                    .then(() => alert('Despesa excluída com sucesso!'))
-                    .catch(error => alert('Erro ao excluir despesa: ' + error.message));
-            }
+        // Toggle Status
+        function toggleExpenseStatus(id, type, currentStatus) {
+            const newStatus = currentStatus === 'pago' ? 'pendente' : 'pago';
+            database.ref(`expenses/${type}/${id}`).update({ status: newStatus })
+                .then(() => {
+                    loadExpenses();
+                })
+                .catch(error => alert('Erro ao atualizar status: ' + error.message));
         }
 
-        document.addEventListener('DOMContentLoaded', loadExpenses);
+        // Update Totals
+        function updateTotals(fixed, variable) {
+            let fixedPending = 0;
+            let fixedPaid = 0;
+            let variablePending = 0;
+            let variablePaid = 0;
+
+            // Calcular totais de despesas fixas
+            database.ref('expenses/fixed').once('value', snapshot => {
+                snapshot.forEach(child => {
+                    const expense = child.val();
+                    if (expense.status === 'pendente') {
+                        fixedPending += expense.value;
+                    } else {
+                        fixedPaid += expense.value;
+                    }
+                });
+
+                // Calcular totais de despesas variáveis
+                database.ref('expenses/variable').once('value', snapshot => {
+                    snapshot.forEach(child => {
+                        const expense = child.val();
+                        if (expense.status === 'pendente') {
+                            variablePending += expense.value;
+                        } else {
+                            variablePaid += expense.value;
+                        }
+                    });
+
+                    // Atualizar todos os totais na interface
+                    document.getElementById('totalFixed').textContent = `R$ ${fixed.toFixed(2)}`;
+                    document.getElementById('totalFixedPending').textContent = `R$ ${fixedPending.toFixed(2)}`;
+                    document.getElementById('totalFixedPaid').textContent = `R$ ${fixedPaid.toFixed(2)}`;
+
+                    document.getElementById('totalVariable').textContent = `R$ ${variable.toFixed(2)}`;
+                    document.getElementById('totalVariablePending').textContent = `R$ ${variablePending.toFixed(2)}`;
+                    document.getElementById('totalVariablePaid').textContent = `R$ ${variablePaid.toFixed(2)}`;
+
+                    document.getElementById('totalExpenses').textContent = `R$ ${(fixed + variable).toFixed(2)}`;
+                    document.getElementById('totalPending').textContent = `R$ ${(fixedPending + variablePending).toFixed(2)}`;
+                    document.getElementById('totalPaid').textContent = `R$ ${(fixedPaid + variablePaid).toFixed(2)}`;
+                });
+            });
+        }
+
+        // Delete Expense
+        function deleteExpense(id, type) {
+            if (confirm('Tem certeza que deseja excluir esta despesa?')) {
+                database.ref(`expenses/${type}/${id}`).remove()
+                    .then(() => {
+                        loadExpenses(); // Adicionar esta linha para atualizar a lista
+                    })
+                    .catch(error => alert('Erro ao excluir: ' + error.message));
+            }
+        }
     </script>
 </body>
 </html>

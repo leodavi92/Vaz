@@ -227,16 +227,40 @@
             function loadFirebaseData() {
                 Promise.all([
                     database.ref('receipts').once('value'),
-                    database.ref('expenses').once('value')
-                ]).then(([receiptsSnapshot, expensesSnapshot]) => {
+                    database.ref('expenses/fixed').once('value'),
+                    database.ref('expenses/variable').once('value')
+                ]).then(([receiptsSnapshot, fixedExpensesSnapshot, variableExpensesSnapshot]) => {
                     const receipts = [];
                     const expenses = [];
                     
                     receiptsSnapshot.forEach((childSnapshot) => {
                         receipts.push(childSnapshot.val());
                     });
-                    expensesSnapshot.forEach((childSnapshot) => {
-                        expenses.push(childSnapshot.val());
+
+                    // Processar despesas fixas
+                    fixedExpensesSnapshot.forEach((childSnapshot) => {
+                        const expense = childSnapshot.val();
+                        expenses.push({
+                            date: new Date(expense.dateAdded).toLocaleDateString('pt-BR'),
+                            description: expense.name,
+                            amount: expense.value,
+                            category: 'Fixo',
+                            status: expense.status,
+                            type: 'fixed'
+                        });
+                    });
+
+                    // Processar despesas variáveis
+                    variableExpensesSnapshot.forEach((childSnapshot) => {
+                        const expense = childSnapshot.val();
+                        expenses.push({
+                            date: new Date(expense.date).toLocaleDateString('pt-BR'),
+                            description: expense.name,
+                            amount: expense.value,
+                            category: expense.category,
+                            status: expense.status,
+                            type: 'variable'
+                        });
                     });
                     
                     updateStats(receipts, expenses);
