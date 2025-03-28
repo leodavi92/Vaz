@@ -257,6 +257,10 @@
                 variableSnapshot.forEach((child) => {
                     variableExpenses.push({...child.val(), id: child.key});
                 });
+
+                // Ordenar despesas pela data mais recente
+                fixedExpenses.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+                variableExpenses.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
                 
                 displayExpenses(fixedExpenses, 'fixed', fixedExpensesPage, document.getElementById('fixedExpenseSearch').value);
                 displayExpenses(variableExpenses, 'variable', variableExpensesPage, document.getElementById('variableExpenseSearch').value);
