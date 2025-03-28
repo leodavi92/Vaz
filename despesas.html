@@ -69,7 +69,19 @@
                     </div>
                 </div>
             </form>
+            <div class="mb-3">
+                <input type="text" class="form-control" id="fixedExpenseSearch" 
+                    placeholder="Buscar por nome ou frequência (semanal, mensal, etc)...">
+            </div>
             <div id="fixedExpensesList"></div>
+            <div class="text-center mt-2">
+                <button id="showMoreFixed" class="btn btn-outline-primary btn-sm" style="display: none;">
+                    Ver mais <i class="fas fa-chevron-down"></i>
+                </button>
+                <button id="showLessFixed" class="btn btn-outline-secondary btn-sm" style="display: none;">
+                    Ver menos <i class="fas fa-chevron-up"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Despesas Variáveis -->
@@ -93,6 +105,7 @@
                             <option value="materiais">Materiais</option>
                             <option value="transporte">Transporte</option>
                             <option value="servicos">Serviços</option>
+                            <option value="despesas_casa">Despesas de Casa</option>
                             <option value="outros">Outros</option>
                         </select>
                     </div>
@@ -101,7 +114,22 @@
                     </div>
                 </div>
             </form>
+            <div class="mb-3">
+                <input type="text" class="form-control" id="variableExpenseSearch" 
+                    placeholder="Buscar por nome ou categoria (alimentação, materiais, etc)...">
+            </div>
             <div id="expensesList"></div>
+            <div class="text-center mt-2">
+                <button id="showMoreVariable" class="btn btn-outline-primary btn-sm" style="display: none;">
+                    Ver mais <i class="fas fa-chevron-down"></i>
+                </button>
+                <button id="showLessVariable" class="btn btn-outline-secondary btn-sm" style="display: none;">
+                    Ver menos <i class="fas fa-chevron-up"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="expensesList"></div>
         </div>
 
         <!-- Resumo -->
@@ -207,78 +235,130 @@
         });
 
         // Load and Display Expenses
-        function loadExpenses() {
-            const fixedList = document.getElementById('fixedExpensesList');
-            const variableList = document.getElementById('expensesList');
-            let totalFixed = 0;
-            let totalVariable = 0;
+        // Constantes e variáveis globais
+        const ITEMS_PER_PAGE = 3;
+        let fixedExpenses = [];
+        let variableExpenses = [];
+        let fixedExpensesPage = 1;
+        let variableExpensesPage = 1;
 
-            // Load Fixed Expenses
-            database.ref('expenses/fixed').once('value', (snapshot) => {
-                fixedList.innerHTML = '';
-                totalFixed = 0; // Reset antes de somar
-                snapshot.forEach((child) => {
-                    const expense = child.val();
-                    totalFixed += expense.value;
-                    
-                    fixedList.innerHTML += `
-                        <div class="alert ${expense.status === 'pago' ? 'alert-success' : 'alert-warning'} d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>${expense.name}</strong> - R$ ${expense.value.toFixed(2)} 
-                                <span class="badge bg-primary">${expense.frequency}</span>
-                                <span class="badge ${expense.status === 'pago' ? 'bg-success' : 'bg-warning'}">${expense.status}</span>
-                                <br>
-                                <small class="text-muted">Adicionado em: ${new Date(expense.dateAdded).toLocaleDateString()}</small>
-                            </div>
-                            <div>
-                                <button class="btn btn-${expense.status === 'pago' ? 'warning' : 'success'} btn-sm me-2" 
-                                    onclick="toggleExpenseStatus('${child.key}', 'fixed', '${expense.status}')">
-                                    <i class="fas fa-${expense.status === 'pago' ? 'times' : 'check'}"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteExpense('${child.key}', 'fixed')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
+        function loadExpenses() {
+            Promise.all([
+                database.ref('expenses/fixed').once('value'),
+                database.ref('expenses/variable').once('value')
+            ]).then(([fixedSnapshot, variableSnapshot]) => {
+                fixedExpenses = [];
+                variableExpenses = [];
+                
+                fixedSnapshot.forEach((child) => {
+                    fixedExpenses.push({...child.val(), id: child.key});
                 });
                 
-                // Load Variable Expenses
-                database.ref('expenses/variable').once('value', (snapshot) => {
-                    variableList.innerHTML = '';
-                    totalVariable = 0; // Reset antes de somar
-                    snapshot.forEach((child) => {
-                        const expense = child.val();
-                        totalVariable += expense.value;
-                        
-                        variableList.innerHTML += `
-                            <div class="alert ${expense.status === 'pago' ? 'alert-success' : 'alert-warning'} d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>${expense.name}</strong> - R$ ${expense.value.toFixed(2)}
-                                    <span class="badge bg-info">${expense.category}</span>
-                                    <span class="badge ${expense.status === 'pago' ? 'bg-success' : 'bg-warning'}">${expense.status}</span>
-                                    <br>
-                                    <small class="text-muted">Data: ${new Date(expense.date).toLocaleDateString()}</small>
-                                    <small class="text-muted">Adicionado em: ${new Date(expense.dateAdded).toLocaleDateString()}</small>
-                                </div>
-                                <div>
-                                    <button class="btn btn-${expense.status === 'pago' ? 'warning' : 'success'} btn-sm me-2" 
-                                        onclick="toggleExpenseStatus('${child.key}', 'variable', '${expense.status}')">
-                                        <i class="fas fa-${expense.status === 'pago' ? 'times' : 'check'}"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteExpense('${child.key}', 'variable')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    // Atualizar totais apenas depois de carregar ambos os tipos
-                    updateTotals(totalFixed, totalVariable);
+                variableSnapshot.forEach((child) => {
+                    variableExpenses.push({...child.val(), id: child.key});
                 });
+                
+                displayExpenses(fixedExpenses, 'fixed', fixedExpensesPage, document.getElementById('fixedExpenseSearch').value);
+                displayExpenses(variableExpenses, 'variable', variableExpensesPage, document.getElementById('variableExpenseSearch').value);
+                updateTotals(fixedExpenses, variableExpenses);
             });
         }
+
+        function displayExpenses(expenses, type, page, searchTerm = '') {
+            const listElement = document.getElementById(type === 'fixed' ? 'fixedExpensesList' : 'expensesList');
+            const showMoreBtn = document.getElementById(type === 'fixed' ? 'showMoreFixed' : 'showMoreVariable');
+            const showLessBtn = document.getElementById(type === 'fixed' ? 'showLessFixed' : 'showLessVariable');
+            
+            // Filtrar despesas
+            const filteredExpenses = expenses.filter(expense => {
+                const searchLower = searchTerm.toLowerCase();
+                const nameMatch = expense.name.toLowerCase().includes(searchLower);
+                const categoryMatch = type === 'variable' ? 
+                    expense.category.toLowerCase().includes(searchLower) : 
+                    expense.frequency.toLowerCase().includes(searchLower);
+                
+                return nameMatch || categoryMatch;
+            });
+
+            // Calcular itens a mostrar
+            const itemsToShow = page * ITEMS_PER_PAGE;
+            const expensesToDisplay = filteredExpenses.slice(0, itemsToShow);
+            
+            // Atualizar lista
+            listElement.innerHTML = expensesToDisplay.map(expense => `
+                <div class="alert ${expense.status === 'pago' ? 'alert-success' : 'alert-warning'} d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${expense.name}</strong> - R$ ${expense.value.toFixed(2)}
+                        ${type === 'fixed' ? 
+                            `<span class="badge bg-primary">${expense.frequency}</span>` :
+                            `<span class="badge bg-info">${expense.category}</span>`}
+                        <span class="badge ${expense.status === 'pago' ? 'bg-success' : 'bg-warning'}">${expense.status}</span>
+                        <br>
+                        <small class="text-muted">Data: ${new Date(expense.dateAdded).toLocaleDateString()}</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-${expense.status === 'pago' ? 'warning' : 'success'} btn-sm me-2" 
+                            onclick="toggleExpenseStatus('${expense.id}', '${type}', '${expense.status}')">
+                            <i class="fas fa-${expense.status === 'pago' ? 'times' : 'check'}"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}', '${type}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Mostrar/esconder botões
+            showMoreBtn.style.display = filteredExpenses.length > itemsToShow ? 'inline-block' : 'none';
+            showLessBtn.style.display = page > 1 ? 'inline-block' : 'none';
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!sessionStorage.getItem('loggedIn')) {
+                window.location.href = './index.html';
+                return;
+            }
+
+            loadExpenses();
+
+            // Busca
+            document.getElementById('fixedExpenseSearch').addEventListener('input', function(e) {
+                fixedExpensesPage = 1; // Reset página ao buscar
+                displayExpenses(fixedExpenses, 'fixed', fixedExpensesPage, e.target.value);
+            });
+
+            document.getElementById('variableExpenseSearch').addEventListener('input', function(e) {
+                variableExpensesPage = 1; // Reset página ao buscar
+                displayExpenses(variableExpenses, 'variable', variableExpensesPage, e.target.value);
+            });
+
+            // Ver mais
+            document.getElementById('showMoreFixed').addEventListener('click', function() {
+                fixedExpensesPage++;
+                displayExpenses(fixedExpenses, 'fixed', fixedExpensesPage, document.getElementById('fixedExpenseSearch').value);
+            });
+
+            document.getElementById('showMoreVariable').addEventListener('click', function() {
+                variableExpensesPage++;
+                displayExpenses(variableExpenses, 'variable', variableExpensesPage, document.getElementById('variableExpenseSearch').value);
+            });
+
+            // Ver menos
+            document.getElementById('showLessFixed').addEventListener('click', function() {
+                if (fixedExpensesPage > 1) {
+                    fixedExpensesPage--;
+                    displayExpenses(fixedExpenses, 'fixed', fixedExpensesPage, document.getElementById('fixedExpenseSearch').value);
+                }
+            });
+
+            document.getElementById('showLessVariable').addEventListener('click', function() {
+                if (variableExpensesPage > 1) {
+                    variableExpensesPage--;
+                    displayExpenses(variableExpenses, 'variable', variableExpensesPage, document.getElementById('variableExpenseSearch').value);
+                }
+            });
+        });
 
         // Toggle Status
         function toggleExpenseStatus(id, type, currentStatus) {
@@ -292,47 +372,45 @@
 
         // Update Totals
         function updateTotals(fixed, variable) {
+            let fixedTotal = 0;
             let fixedPending = 0;
             let fixedPaid = 0;
+            let variableTotal = 0;
             let variablePending = 0;
             let variablePaid = 0;
 
             // Calcular totais de despesas fixas
-            database.ref('expenses/fixed').once('value', snapshot => {
-                snapshot.forEach(child => {
-                    const expense = child.val();
-                    if (expense.status === 'pendente') {
-                        fixedPending += expense.value;
-                    } else {
-                        fixedPaid += expense.value;
-                    }
-                });
-
-                // Calcular totais de despesas variáveis
-                database.ref('expenses/variable').once('value', snapshot => {
-                    snapshot.forEach(child => {
-                        const expense = child.val();
-                        if (expense.status === 'pendente') {
-                            variablePending += expense.value;
-                        } else {
-                            variablePaid += expense.value;
-                        }
-                    });
-
-                    // Atualizar todos os totais na interface
-                    document.getElementById('totalFixed').textContent = `R$ ${fixed.toFixed(2)}`;
-                    document.getElementById('totalFixedPending').textContent = `R$ ${fixedPending.toFixed(2)}`;
-                    document.getElementById('totalFixedPaid').textContent = `R$ ${fixedPaid.toFixed(2)}`;
-
-                    document.getElementById('totalVariable').textContent = `R$ ${variable.toFixed(2)}`;
-                    document.getElementById('totalVariablePending').textContent = `R$ ${variablePending.toFixed(2)}`;
-                    document.getElementById('totalVariablePaid').textContent = `R$ ${variablePaid.toFixed(2)}`;
-
-                    document.getElementById('totalExpenses').textContent = `R$ ${(fixed + variable).toFixed(2)}`;
-                    document.getElementById('totalPending').textContent = `R$ ${(fixedPending + variablePending).toFixed(2)}`;
-                    document.getElementById('totalPaid').textContent = `R$ ${(fixedPaid + variablePaid).toFixed(2)}`;
-                });
+            fixed.forEach(expense => {
+                fixedTotal += expense.value;
+                if (expense.status === 'pendente') {
+                    fixedPending += expense.value;
+                } else {
+                    fixedPaid += expense.value;
+                }
             });
+
+            // Calcular totais de despesas variáveis
+            variable.forEach(expense => {
+                variableTotal += expense.value;
+                if (expense.status === 'pendente') {
+                    variablePending += expense.value;
+                } else {
+                    variablePaid += expense.value;
+                }
+            });
+
+            // Atualizar todos os totais na interface
+            document.getElementById('totalFixed').textContent = `R$ ${fixedTotal.toFixed(2)}`;
+            document.getElementById('totalFixedPending').textContent = `R$ ${fixedPending.toFixed(2)}`;
+            document.getElementById('totalFixedPaid').textContent = `R$ ${fixedPaid.toFixed(2)}`;
+
+            document.getElementById('totalVariable').textContent = `R$ ${variableTotal.toFixed(2)}`;
+            document.getElementById('totalVariablePending').textContent = `R$ ${variablePending.toFixed(2)}`;
+            document.getElementById('totalVariablePaid').textContent = `R$ ${variablePaid.toFixed(2)}`;
+
+            document.getElementById('totalExpenses').textContent = `R$ ${(fixedTotal + variableTotal).toFixed(2)}`;
+            document.getElementById('totalPending').textContent = `R$ ${(fixedPending + variablePending).toFixed(2)}`;
+            document.getElementById('totalPaid').textContent = `R$ ${(fixedPaid + variablePaid).toFixed(2)}`;
         }
 
         // Delete Expense
